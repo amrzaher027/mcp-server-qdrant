@@ -2,20 +2,21 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install uv for package management
-RUN pip install --no-cache-dir uv
+# Copy the project files
+COPY . .
 
-# Install the mcp-server-qdrant package
-RUN uv pip install --system --no-cache-dir mcp-server-qdrant
+# Install uv
+RUN pip install uv
 
-# Expose the default port for SSE transport
+# Install the package from local source
+RUN uv pip install --system -e .
+
+# Set environment variables for Railway deployment
+ENV FASTMCP_HOST=0.0.0.0
+ENV FASTMCP_PORT=8000
+
+# Expose the port
 EXPOSE 8000
 
-# Set environment variables with defaults that can be overridden at runtime
-ENV QDRANT_URL=""
-ENV QDRANT_API_KEY=""
-ENV COLLECTION_NAME="default-collection"
-ENV EMBEDDING_MODEL="sentence-transformers/all-MiniLM-L6-v2"
-
-# Run the server with SSE transport
-CMD uvx mcp-server-qdrant --transport sse
+# Start the server with our modified code
+CMD ["python", "-m", "mcp_server_qdrant.main", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
