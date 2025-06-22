@@ -160,7 +160,6 @@ class QdrantConnector:
             )
 
             # Create payload indexes if configured
-
             if self._field_indexes:
                 for field_name, field_type in self._field_indexes.items():
                     await self._client.create_payload_index(
